@@ -22,7 +22,7 @@ model = smp.Unet(
 
 # --- 2. Load Your Trained Weights ---
 # Make sure the .pth file is in the same directory or provide the correct path.
-MODEL_PATH = "../model-weights/best_teeth_segmentation_model.pth"
+MODEL_PATH = "model-weights/best_teeth_segmentation_model.pth"
 state_dict = torch.load(MODEL_PATH, map_location=DEVICE)
 
 # Create a new dictionary without the "module." prefix

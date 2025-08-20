@@ -6,14 +6,10 @@ import sys
 import os
 import tempfile # Used for temporarily saving cropped images
 
-# Add the project's source directory to the Python path
-# This allows us to import modules from sibling directories
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 # Import all necessary classes and functions
-from face_detector import MouthDetector
-from predictor import get_teeth_mask
-from lab_whitening import LABTeethWhitener
+from teeth_whitener.detection.face_detector import MouthDetector
+from teeth_whitener.segmentation.predictor import get_teeth_mask
+from teeth_whitener.enhancement.lab_whitening import LABTeethWhitener
 
 def run_full_pipeline(image_path: str, detector: MouthDetector, whitener: LABTeethWhitener):
     """
