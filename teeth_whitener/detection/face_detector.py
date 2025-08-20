@@ -194,9 +194,9 @@ class MouthDetector:
                 cropped_mouth, adjusted_bbox = self.crop_mouth_region(image, bbox)
                 
                 # Skip if cropped region is too small
-                # if cropped_mouth.shape[0] < 20 or cropped_mouth.shape[1] < 20:
-                #     print(f"Face {i}: Cropped mouth region too small")
-                #     continue
+                if cropped_mouth.shape[0] == 0 or cropped_mouth.shape[1] == 0:
+                    print(f"Face {i}: Cropped mouth region with no size")
+                    continue
                 
                 mouth_regions.append({
                     'face_id': i,
