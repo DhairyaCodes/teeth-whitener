@@ -22,7 +22,7 @@ class MouthDetector:
         Args:
             model_path: Path to YUNet model. If None, downloads automatically.
         """
-        self.model_path = model_path or self._download_yunet_model()
+        self.model_path = model_path
         
         # Verify model file exists and is valid
         if not os.path.exists(self.model_path):
@@ -30,12 +30,6 @@ class MouthDetector:
         
         # Check file size (should be around 1.3MB for YUNet model)
         file_size = os.path.getsize(self.model_path)
-        if file_size < 1000000:  # Less than 1MB suggests corrupted download
-            print(f"Warning: Model file seems too small ({file_size} bytes)")
-            print("Removing potentially corrupted model file...")
-            os.remove(self.model_path)
-            # Try to download again
-            self.model_path = self._download_yunet_model()
         
         try:
             self.detector = cv2.FaceDetectorYN.create(self.model_path, "", (0, 0))
@@ -43,28 +37,7 @@ class MouthDetector:
             print(f"Error loading YUNet model: {e}")
             print("This might be due to a corrupted model file.")
             print("Try deleting the models/ directory and running again.")
-            raise
-        
-    def _download_yunet_model(self) -> str:
-        """Download YUNet model if not present."""
-        model_dir = "models"
-        os.makedirs(model_dir, exist_ok=True)
-        model_path = os.path.join(model_dir, "face_detection_yunet_2023mar.onnx")
-        
-        if not os.path.exists(model_path):
-            print("Downloading YUNet face detection model...")
-            # Use the raw file URL from GitHub
-            url = "https://github.com/opencv/opencv_zoo/raw/main/models/face_detection_yunet/face_detection_yunet_2023mar.onnx"
-            try:
-                urllib.request.urlretrieve(url, model_path)
-                print("Model downloaded successfully!")
-            except Exception as e:
-                print(f"Failed to download model: {e}")
-                print("Please download the model manually from:")
-                print(url)
-                raise
-            
-        return model_path
+            raise        
     
     def detect_faces(self, image: np.ndarray) -> List[np.ndarray]:
         """
