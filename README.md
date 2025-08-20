@@ -1,243 +1,89 @@
-# Teeth Whitening Pipeline
+# AI Teeth Whitening Pipeline
 
-A comprehensive, modular pipeline for automatic teeth detection, segmentation, and whitening using computer vision and deep learning techniques.
+A comprehensive, modular pipeline that automatically detects teeth in photographs and applies a natural, realistic whitening effect using deep learning and advanced image processing.
 
 ## Features
 
-🦷 **Automatic Teeth Detection**: Uses RetinaFace detector to locate mouth regions with high accuracy and precise landmarks
-📐 **Precise Segmentation**: U-Net model with MobileNetV2 backbone for efficient and accurate teeth segmentation  
-🎨 **Natural Whitening**: LAB color space manipulation for realistic teeth whitening without artificial appearance
-⚡ **Real-time Performance**: Optimized for speed with MobileNetV2's depthwise separable convolutions
-🔧 **Modular Design**: Clean, extensible architecture with separate components for each processing stage
-📊 **Adaptive Processing**: Analyzes teeth color characteristics and adjusts whitening parameters automatically
+* 🦷 **Automatic Mouth Detection**: Employs the RetinaFace detector to accurately locate faces and mouth regions in any image.
+* 📐 **Precise Teeth Segmentation**: Leverages a trained U-Net model with a MobileNetV2 backbone to generate precise pixel-level masks of the teeth.
+* 🎨 **Adaptive Whitening**: Intelligently analyzes the color of the teeth in the LAB color space and applies a proportional whitening effect, preventing unnatural glowing on already-white teeth and effectively brightening yellowed areas.
+* ⚡ **Efficient Performance**: Optimized for speed, making it suitable for interactive applications.
 
 ## Architecture
 
-The pipeline consists of three main components:
+The pipeline is engineered in three distinct, modular stages:
 
-### 1. Mouth Detection (`src/detection/`)
-- **RetinaFace Detector**: Detects faces and extracts precise facial landmarks
-- **Smart Cropping**: Creates optimally-sized mouth regions with contextual padding
-- **Multi-face Support**: Processes multiple faces in a single image
-- **Fallback Support**: Uses OpenCV DNN if RetinaFace is not available
+1.  **Mouth Detection (`teeth_whitener/detection/`)**: The `MouthDetector` class takes an input image, uses RetinaFace to find facial landmarks, and intelligently crops the mouth region with appropriate padding for the next stage.
+2.  **Teeth Segmentation (`teeth_whitener/segmentation/`)**: The `predictor` module loads the pre-trained U-Net model (`best_teeth_segmentation_model.pth`) and processes the cropped mouth image, outputting a clean binary mask of the teeth.
+3.  **Adaptive Whitening (`teeth_whitener/enhancement/`)**: The `LABTeethWhitener` class takes the original mouth crop and the generated mask. It converts the image to the LAB color space to independently adjust lightness (gamma correction) and reduce yellowness proportionally, ensuring a natural look.
 
-### 2. Teeth Segmentation (`src/segmentation/`)
-- **U-Net Architecture**: Classic encoder-decoder with skip connections for precise boundaries
-- **MobileNetV2 Backbone**: Efficient feature extraction using depthwise separable convolutions
-- **Binary Segmentation**: Produces accurate teeth masks for targeted whitening
+## Setup and Installation
 
-### 3. LAB Color Space Whitening (`src/enhancement/`)
-- **Lightness Enhancement**: Increases brightness in the L channel
-- **Yellowness Reduction**: Reduces yellow tones in the B channel
-- **Adaptive Parameters**: Analyzes teeth color and adjusts whitening strength
-- **Smooth Blending**: Natural integration with original image
+Follow these steps to get the project running on your local machine.
 
-## Installation
+1.  **Clone the Repository**:
+    ```bash
+    git clone https://github.com/DhairyaCodes/teeth-whitener
+    cd teeth-whitener
+    ```
 
-1. **Clone the repository**:
-```bash
-git clone <repository-url>
-cd Aftershoot-Assignment
-```
+2.  **Create a Conda Environment** (Recommended):
+    This project requires **Python 3.11**.
+    ```bash
+    conda create -n teeth_whitener python=3.11 -y
+    conda activate teeth_whitener
+    ```
 
-2. **Install dependencies**:
-```bash
-pip install -r requirements.txt
-```
+3.  **Install Dependencies**:
+    Install all required packages using the provided `requirements.txt` file.
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-3. **For GPU support** (optional, requires CUDA):
-```bash
-pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
-```
+## How to Run
 
-## Quick Start
+You can run the pipeline either through the command-line interface or the interactive Streamlit web application.
 
-### Command Line Usage
+### 1. Run the Command-Line Pipeline (`pipeline.py`)
 
-**Process a single image**:
-```bash
-python main.py --image path/to/image.jpg --output results/
-```
+This script is ideal for processing one or more images directly.
 
-**Process multiple images**:
-```bash
-python main.py --batch input_folder/ --output results/
-```
+* **To process a single image**:
+    ```bash
+    python pipeline.py --images "path/to/your/image.jpg"
+    ```
+* **To process multiple images** (up to 5 at a time):
+    ```bash
+    python pipeline.py --images "image1.jpg" "image2.jpg"
+    ```
 
-**Custom parameters**:
-```bash
-python main.py --image image.jpg --lightness 1.2 --yellowness 12 --padding 0.4
-```
+The script will display a plot showing the original image, the generated mask, and the final whitened result for each image provided.
 
-**Save intermediate results**:
-```bash
-python main.py --image image.jpg --output results/ --save-intermediate
-```
+### 2. Launch the Streamlit Web App (`app.py`)
 
-**Use GPU acceleration**:
-```bash
-python main.py --image image.jpg --device cuda
-```
+This provides a user-friendly interface to upload and process one photo at a time.
 
-### Programmatic Usage
-
-```python
-from src.pipeline.teeth_whitening_pipeline import TeethWhiteningPipeline
-
-# Initialize pipeline
-pipeline = TeethWhiteningPipeline(
-    device='cpu',  # Use 'cuda' for GPU
-    lightness_factor=1.15,
-    yellowness_reduction=10
-)
-
-# Process image
-result = pipeline.process_single_image(
-    image_path="image.jpg",
-    output_dir="results/",
-    adaptive_whitening=True
-)
-
-if "error" not in result:
-    print(f"Success! Processed {result['mouth_regions_count']} mouth regions")
-    print(f"Result saved to: {result['final_output_path']}")
-```
+* **To launch the app**:
+    ```bash
+    streamlit run streamlit_app.py
+    ```
+* Your web browser will open with the application running. Simply upload an image to see the results.
 
 ## Project Structure
 
 ```
-Aftershoot-Assignment/
-├── src/
+teeth-whitener/
+├── teeth_whitener/
+│   ├── __init__.py
 │   ├── detection/
-│   │   ├── __init__.py
-│   │   └── face_detector.py          # YUNet face detection and mouth cropping
-│   ├── segmentation/
-│   │   ├── __init__.py
-│   │   └── unet_model.py             # U-Net with MobileNetV2 backbone
+│   │   └── face_detector.py
 │   ├── enhancement/
-│   │   ├── __init__.py
-│   │   └── lab_whitening.py          # LAB color space whitening
-│   ├── utils/
-│   │   ├── __init__.py
-│   │   └── image_utils.py            # Image processing utilities
-│   └── pipeline/
-│       └── teeth_whitening_pipeline.py  # Main integration pipeline
-├── models/                           # Downloaded/trained models
-├── demo_images/                      # Sample images for testing
-├── output/                          # Processing results
-├── main.py                          # Command-line interface
-├── sample_usage.py                  # Example usage script
-├── requirements.txt                 # Python dependencies
-└── README.md                        # This file
-```
-
-## Technical Details
-
-### Mouth Detection Process
-1. **Face Detection**: RetinaFace detects faces and provides detailed facial landmarks
-2. **Landmark Extraction**: Extracts precise mouth corner coordinates and other facial points
-3. **Bounding Box Calculation**: Creates mouth region with configurable padding
-4. **Bounds Checking**: Ensures crop coordinates are within image boundaries
-5. **Fallback Handling**: Uses OpenCV DNN with estimated landmarks if RetinaFace fails
-
-### Segmentation Model
-- **Architecture**: U-Net with MobileNetV2 encoder
-- **Input Size**: 224x224 pixels (automatically resized)
-- **Output**: Binary mask (0-255) highlighting teeth regions
-- **Training**: Designed for teeth segmentation datasets (model weights not included)
-
-### Whitening Algorithm
-- **Color Space**: Converts BGR → LAB for perceptual uniformity
-- **L Channel**: Increases lightness by configurable factor (default: 1.15)
-- **B Channel**: Reduces yellowness by subtracting constant (default: 10)
-- **Blending**: Smooth mask-based blending for natural results
-
-## Parameters
-
-| Parameter | Default | Range | Description |
-|-----------|---------|-------|-------------|
-| `padding_factor` | 0.3 | 0.2-0.5 | Padding around detected mouth region |
-| `lightness_factor` | 1.15 | 1.1-1.3 | Brightness enhancement multiplier |
-| `yellowness_reduction` | 10 | 5-15 | Amount to reduce yellow tones |
-
-## Model Requirements
-
-### Face Detection
-- **Primary Model**: RetinaFace (auto-downloaded on first use)
-- **Fallback Model**: OpenCV DNN face detector
-- **Features**: High-accuracy face detection with precise landmarks
-
-### Teeth Segmentation
-- **Model**: U-Net with MobileNetV2 (weights not included)
-- **Training Data**: Requires teeth segmentation dataset
-- **Note**: The pipeline includes model architecture but not trained weights
-
-## Training Your Own Segmentation Model
-
-To train the segmentation model on your own teeth dataset:
-
-```python
-from src.segmentation.unet_model import TeethSegmentationUNet
-import torch
-
-# Create model
-model = TeethSegmentationUNet(num_classes=1)
-
-# Training loop (implement your own)
-# ... training code ...
-
-# Save trained weights
-torch.save(model.state_dict(), "models/trained_teeth_segmentation.pth")
-```
-
-## Performance
-
-- **Speed**: ~2-3 seconds per image on CPU, ~0.5 seconds on GPU
-- **Memory**: ~500MB RAM usage
-- **Accuracy**: Depends on segmentation model training quality
-
-## Limitations
-
-1. **Segmentation Model**: Requires training on teeth segmentation dataset
-2. **Lighting Conditions**: Works best with good lighting
-3. **Extreme Poses**: May struggle with very angled faces
-4. **Occluded Teeth**: Cannot whiten teeth that are not visible
-
-## Future Improvements
-
-- [ ] Pre-trained segmentation model weights
-- [ ] Real-time video processing
-- [ ] Advanced teeth color analysis
-- [ ] Multiple whitening styles (Hollywood, Natural, etc.)
-- [ ] Dental health analysis integration
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
-
-- YUNet face detection model from OpenCV Model Zoo
-- U-Net architecture from Ronneberger et al.
-- MobileNetV2 from Sandler et al.
-- LAB color space whitening techniques from digital photography literature
-
-## Support
-
-For questions, issues, or contributions, please:
-1. Check existing GitHub issues
-2. Create a new issue with detailed description
-3. Provide sample images and error logs when applicable
-
----
-
-**Note**: This pipeline provides the complete architecture and implementation for teeth whitening. For production use, you'll need to train the segmentation model on a suitable teeth segmentation dataset.
-
+│   │   └── lab_whitening.py
+│   └── segmentation/
+│       └── predictor.py
+├── models-weights/
+│   └── best_teeth_segmentation_model.pth
+├── streamlit_app.py
+├── pipeline.py
+├── requirements.txt
+└── README.md
