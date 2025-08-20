@@ -22,7 +22,7 @@ model = smp.Unet(
 
 # --- 2. Load Your Trained Weights ---
 # Make sure the .pth file is in the same directory or provide the correct path.
-MODEL_PATH = "../model-weights/best_teeth_segmentation_model.pth"
+MODEL_PATH = "model-weights/best_teeth_segmentation_model.pth"
 state_dict = torch.load(MODEL_PATH, map_location=DEVICE)
 
 # Create a new dictionary without the "module." prefix
@@ -79,7 +79,7 @@ def get_teeth_mask(image_path):
 # --- Example Usage ---
 if __name__ == '__main__':
     # Replace 'path/to/your/image.jpg' with an actual image file
-    input_image_path = '../images/c16.jpg'
+    input_image_path = 'images/c16.jpg'
     
     # Get the mask
     mask = get_teeth_mask(input_image_path)

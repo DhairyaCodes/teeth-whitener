@@ -1,29 +1,14 @@
-# Core dependencies for Teeth Whitening Pipeline
-opencv-python>=4.7.0
 numpy==1.26.4
+matplotlib
+opencv-python>=4.7.0
+Pillow>=10.0.0
+albumentations>=1.4.0
 torch
 torchvision
-albumentations>=1.4.0
 segmentation_models_pytorch
-
-# Face detection
 retina-face==0.0.17
-
-# Image processing
-Pillow>=10.0.0
-scikit-image>=0.21.0
-
-# RetinaFace dependencies
 tensorflow>=2.12.0
 tf-keras>=2.12.0
 protobuf==3.20.3
-click
-dm-tree
-toml
-
-# Development and testing (optional)
-matplotlib
 jupyter
-
-
 streamlit
